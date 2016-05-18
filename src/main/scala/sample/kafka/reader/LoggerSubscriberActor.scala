@@ -12,7 +12,7 @@ class LoggerSubscriberActor(level: String) extends ActorSubscriber with ActorLog
 
   val logLevel: Logging.LogLevel = Logging.levelFor(level).getOrElse(Logging.DebugLevel)
 
-  override protected def requestStrategy: RequestStrategy = WatermarkRequestStrategy(50)
+  override protected def requestStrategy: RequestStrategy = WatermarkRequestStrategy(32768)
 
   override def receive: Receive = {
     case OnNext(msg: String) =>

@@ -8,7 +8,7 @@ import akka.kafka.scaladsl.Consumer.Control
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
-import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.{ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
 
 import scala.collection.JavaConverters._
@@ -60,9 +60,18 @@ trait ActorSetup {
   lazy val kafkaSink: Sink[ProducerRecord[String, String], _] = {
     if (config.hasPath("output.kafka.bootstrap-servers")) {
       val cfg = config.getConfig("output.kafka")
-      val bootStrapServers = cfg.getStringList("bootstrap-servers").asScala.toList
+      val bootStrapServers = cfg.getStringList("bootstrap-servers").asScala
+      val compressionType = cfg.getString("producer.compression.type")
+      val batchSize = cfg.getInt("producer.batch.size")
+      val lingerMs = cfg.getInt("producer.linger.ms")
+      val bufferMemory = cfg.getLong("producer.buffer.memory")
+
       val producerSettings = ProducerSettings(system, new StringSerializer, new StringSerializer)
         .withBootstrapServers(bootStrapServers.mkString(","))
+        .withProperty(ProducerConfig.BATCH_SIZE_CONFIG, batchSize.toString)
+        .withProperty(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory.toString)
+        .withProperty(ProducerConfig.LINGER_MS_CONFIG, lingerMs.toString)
+        .withProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType)
       Producer.plainSink(producerSettings)
     } else {
       Sink.ignore
