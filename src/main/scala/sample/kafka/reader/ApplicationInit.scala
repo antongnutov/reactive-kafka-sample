@@ -43,7 +43,8 @@ trait ApplicationInit {
         ClosedShape
     })
 
-    g.run().stopped.foreach(_ => system.terminate())
+    val control = g.run()
+    control.isShutdown.foreach(_ => system.terminate())
 
     sys.addShutdownHook {
       system.terminate()

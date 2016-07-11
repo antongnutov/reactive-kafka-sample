@@ -1,10 +1,11 @@
 package sample.kafka.reader
 
 import java.io.File
+import java.nio.file.StandardOpenOption._
 
-import akka.kafka.{ConsumerSettings, ProducerSettings}
-import akka.kafka.scaladsl.{Consumer, Producer}
 import akka.kafka.scaladsl.Consumer.Control
+import akka.kafka.scaladsl.{Consumer, Producer}
+import akka.kafka.{ConsumerSettings, ProducerSettings, Subscriptions}
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.producer.{ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
 
 /**
   * @author Anton Gnutov
@@ -22,7 +24,7 @@ trait ActorSetup {
   lazy val fileSink: Sink[ByteString, _] = {
     if (config.hasPath("output.file.name")) {
       val name = config.getString("output.file.name")
-      FileIO.toFile(new File(name))
+      FileIO.toPath(new File(name).toPath, Set(WRITE, CREATE, TRUNCATE_EXISTING))
     } else {
       Sink.ignore
     }
@@ -40,21 +42,23 @@ trait ActorSetup {
   lazy val kafkaSource: Source[ConsumerRecord[String, String], Control] = {
     val cfg = config.getConfig("input.kafka")
     val bootStrapServers = cfg.getStringList("bootstrap-servers").asScala.toList
-    val topic = cfg.getString("topic")
+    val topics = cfg.getStringList("topics").asScala.toSet
     val group = cfg.getString("group")
     val commit = cfg.getBoolean("commit")
     val start = cfg.getString("start-from")
     val fetchBytes = cfg.getInt("fetch.bytes")
 
-    val consumerSettings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer,
-      Set(topic))
+    val consumerSettings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
       .withBootstrapServers(bootStrapServers.mkString(","))
       .withGroupId(group)
       .withProperty(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, fetchBytes.toString)
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, start)
       .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, commit.toString)
+      .withDispatcher("pinned-dispatcher")
+      .withPollInterval(1.millisecond)
+      .withPollTimeout(50.milliseconds)
 
-    Consumer.plainSource(consumerSettings)
+    Consumer.plainSource(consumerSettings, Subscriptions.topics(topics))
   }
 
   lazy val kafkaSink: Sink[ProducerRecord[String, String], _] = {
