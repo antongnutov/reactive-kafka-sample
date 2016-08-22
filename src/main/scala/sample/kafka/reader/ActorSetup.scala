@@ -55,8 +55,8 @@ trait ActorSetup {
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, start)
       .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, commit.toString)
       .withDispatcher("pinned-dispatcher")
-      .withPollInterval(1.millisecond)
-      .withPollTimeout(50.milliseconds)
+      .withPollInterval(20.millis)
+      .withPollTimeout(50.millis)
 
     Consumer.plainSource(consumerSettings, Subscriptions.topics(topics))
   }

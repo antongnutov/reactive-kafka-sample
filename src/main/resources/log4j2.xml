@@ -2,7 +2,7 @@
 <Configuration monitorInterval="30">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5p] %c{1} - %m %ex%n"/>
+            <PatternLayout pattern="[%-5p] - %m %ex%n"/>
         </Console>
     </Appenders>
 

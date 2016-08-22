@@ -4,7 +4,7 @@ organization in ThisBuild := "sample"
 
 scalaVersion := "2.11.8"
 
-val akkaVersion = "2.4.8"
+val akkaVersion = "2.4.9"
 val log4j2Version = "2.5"
 
 libraryDependencies ++= Seq(
@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
 
   // Kafka
-  "com.typesafe.akka" %% "akka-stream-kafka" % "0.11-M4",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "0.11-RC1",
 
   // Logging
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
