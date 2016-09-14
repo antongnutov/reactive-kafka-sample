@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
 
   // Kafka
-  "com.typesafe.akka" %% "akka-stream-kafka" % "0.11-RC1",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "0.11",
 
   // Logging
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
