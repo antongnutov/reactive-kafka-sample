@@ -2,23 +2,22 @@ name := "reactive-kafka-sample"
 
 organization in ThisBuild := "sample"
 
-scalaVersion := "2.11.8"
+scalaVersion in ThisBuild := ScalaConfig.version
 
-val akkaVersion = "2.4.9"
-val log4j2Version = "2.5"
+scalacOptions in ThisBuild := ScalaConfig.compilerOptions.value
 
 libraryDependencies ++= Seq(
   // Akka
-  "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+  "com.typesafe.akka" %% "akka-actor" % Versions.akka,
 
   // Kafka
-  "com.typesafe.akka" %% "akka-stream-kafka" % "0.11",
+  "com.typesafe.akka" %% "akka-stream-kafka" % Versions.reactiveKafka,
 
   // Logging
-  "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-  "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4j2Version,
-  "org.apache.logging.log4j" % "log4j-core" % log4j2Version,
-  "org.apache.logging.log4j" % "log4j-api" % log4j2Version
+  "com.typesafe.akka" %% "akka-slf4j" % Versions.akka,
+  "org.apache.logging.log4j" % "log4j-slf4j-impl" % Versions.log4j,
+  "org.apache.logging.log4j" % "log4j-core" % Versions.log4j,
+  "org.apache.logging.log4j" % "log4j-api" % Versions.log4j
 )
 
 fork in run := true
