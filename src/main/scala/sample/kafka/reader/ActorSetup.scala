@@ -48,6 +48,9 @@ trait ActorSetup {
     val start = cfg.getString("start-from")
     val fetchBytes = cfg.getInt("fetch.bytes")
 
+    val count = cfg.getLong("message.count")
+    val filter = cfg.getString("message.filter")
+
     val consumerSettings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
       .withBootstrapServers(bootStrapServers.mkString(","))
       .withGroupId(group)
@@ -58,7 +61,9 @@ trait ActorSetup {
       .withPollInterval(20.millis)
       .withPollTimeout(50.millis)
 
-    Consumer.plainSource(consumerSettings, Subscriptions.topics(topics))
+    val src = Consumer.plainSource(consumerSettings, Subscriptions.topics(topics))
+    val filtered = if (filter.nonEmpty) src.filter(_.value().contains(filter)) else src
+    if (count > 0) filtered.take(count) else filtered
   }
 
   lazy val kafkaSink: Sink[ProducerRecord[String, String], _] = {
@@ -82,7 +87,6 @@ trait ActorSetup {
     }
   }
 
-  lazy val messageCount: Int = config.getInt("input.kafka.message.count")
   lazy val outputTopic: String = if (config.hasPath("output.kafka.topic")) {
     config.getString("output.kafka.topic")
   } else {

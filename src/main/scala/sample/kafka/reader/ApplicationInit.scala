@@ -22,7 +22,6 @@ trait ApplicationInit {
   val fileSink: Sink[ByteString, _]
   val loggerSink: Sink[String, _]
 
-  val messageCount: Int
   val outputTopic: String
 
   def start(): Unit = {
@@ -31,7 +30,7 @@ trait ApplicationInit {
 
     import system.dispatcher
 
-    val g = RunnableGraph.fromGraph(GraphDSL.create(kafkaSource.take(messageCount)) { implicit b =>
+    val g = RunnableGraph.fromGraph(GraphDSL.create(kafkaSource) { implicit b =>
       source: SourceShape[ConsumerRecord[String, String]] =>
         import GraphDSL.Implicits._
 
