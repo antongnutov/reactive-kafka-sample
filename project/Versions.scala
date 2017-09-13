@@ -1,5 +1,5 @@
 object Versions {
-  val akka = "2.4.18"
-  val reactiveKafka = "0.16"
-  val log4j = "2.8.2"
+  val akka = "2.4.20"
+  val reactiveKafka = "0.17"
+  val log4j = "2.9.0"
 }
